@@ -1,0 +1,19 @@
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.photo-card {
+    width: 300px;
+    height: 300px;
+    margin: 10px;
+    box-shadow: 0 0 4px #757575;
+    
+}
+
+.info {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
