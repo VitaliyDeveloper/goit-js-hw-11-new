@@ -15,28 +15,47 @@ refs.moreBtnEl.classList.add('unvisible');
 
 /////ЗАПРОС ДАННЫХ СЕРВЕР////////////////////////////
 
-function fetchApiGallery() {
-  const params = new URLSearchParams({
-    key: API,
-    page: `${pageToFetch}`,
-    per_page: 40,
-    _limit: 40,
-    q: ` ${keyword}`,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: 'true',
-  });
+// function fetchApiGallery() {
+//   const params = new URLSearchParams({
+//     key: API,
+//     page: `${pageToFetch}`,
+//     per_page: 40,
+//     _limit: 40,
+//     q: ` ${keyword}`,
+//     image_type: 'photo',
+//     orientation: 'horizontal',
+//     safesearch: 'true',
+//   });
 
-  return fetch(`${BASE_URL}?${params}`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(response.status);
-      }
-      return response.json();
-    })
-    .catch(error => console.log(error));
+//   return fetch(`${BASE_URL}?${params}`)
+//     .then(response => {
+//       if (!response.ok) {
+//         throw new Error(response.status);
+//       }
+//       return response.json();
+//     })
+//     .catch(error => console.log(error));
+// }
+
+//////////////////////////////////////////////////////////
+async function fetchApiGallery() {
+  try {
+    const params = new URLSearchParams({
+      key: API,
+      page: `${pageToFetch}`,
+      per_page: 40,
+      _limit: 40,
+      q: ` ${keyword}`,
+      image_type: 'photo',
+      orientation: 'horizontal',
+      safesearch: 'true',
+    });
+    const response = await axios.get(`${BASE_URL}?${params}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
 }
-
 ////ДЕЙСТВИЯ УСЛОВИЯ КАРТИНОК//////////////////////////
 
 function onSearch(page, keyword) {
@@ -84,11 +103,14 @@ refs.formSearchEl.addEventListener('submit', event => {
   event.preventDefault();
   const searchQuery = event.target.elements.searchQuery.value;
   if (!searchQuery) {
+    refs.galleryContainerEl.innerHTML = '';
+    refs.moreBtnEl.classList.add('unvisible');
+
     Notify.warning('Please, enter your request');
     return;
   }
   pageToFetch = 1;
-  // console.log(galleryPhoto.hits.length);
+
   keyword = searchQuery.trim();
   refs.galleryContainerEl.innerHTML = '';
   onSearch(pageToFetch, countPhoto, keyword);
@@ -97,12 +119,12 @@ refs.formSearchEl.addEventListener('submit', event => {
 
 ///КЛИК по ПОИСКУ////////////////////
 
-refs.submitBtn.addEventListener('click', () => {
-  if (keyword === '') {
-    return;
-  }
-  onSearch(pageToFetch, countPhoto, keyword);
-});
+// refs.submitBtn.addEventListener('click', () => {
+//   if (keyword === '') {
+//     return;
+//   }
+//   onSearch(pageToFetch, countPhoto, keyword);
+// });
 
 ///РЕНДЕР КАРТИНОК/////////////////////////////////////
 function renderGallery(galleryPhoto) {
