@@ -2,23 +2,24 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import axios from 'axios';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-// import { fetchApiGallery } from './js/fetchApiGallery';
 import { refs } from './js/refs.js';
 
 const BASE_URL = 'https://pixabay.com/api';
 const API = '30609342-292210cfdd781fb5e072ce5d7';
 
 let pageToFetch = 1;
+let countPhoto = 40;
 let keyword = '';
 
 refs.moreBtnEl.classList.add('unvisible');
 
 /////ЗАПРОС ДАННЫХ СЕРВЕР////////////////////////////
+
 function fetchApiGallery() {
   const params = new URLSearchParams({
     key: API,
-    page: 1,
-    size: 20,
+    page: `${pageToFetch}`,
+    per_page: 40,
     _limit: 40,
     q: ` ${keyword}`,
     image_type: 'photo',
@@ -43,13 +44,14 @@ function onSearch(page, keyword) {
     .then(galleryPhoto => {
       if (galleryPhoto.totalHits === 0) {
         refs.moreBtnEl.classList.add('unvisible');
+        refs.galleryContainerEl.innerHTML = '';
         Notify.failure(
           'Sorry, there are no images matching your search query. Please try again.'
         );
         return;
       }
 
-      if (pageToFetch === galleryPhoto.totalPages) {
+      if (countPhoto >= galleryPhoto.totalHits) {
         refs.moreBtnEl.classList.add('unvisible');
         Notify.info(
           "We're sorry, but you've reached the end of search results."
@@ -59,19 +61,23 @@ function onSearch(page, keyword) {
 
       renderGallery(galleryPhoto);
       pageToFetch += 1;
+      countPhoto += galleryPhoto.hits.length;
 
-      if (galleryPhoto.totalPages > 1) {
+      if (galleryPhoto.totalHits >= 500) {
         refs.moreBtnEl.classList.remove('unvisible');
         Notify.success(`Hooray! We found ${galleryPhoto.totalHits} images`);
-        // refs.moreBtnEl.addEventListener('click', addMorePhoto);
-
-        // function addMorePhoto() {
-        //   pageToFetch += 1;
-        //   renderGallery(galleryPhoto);
-        // }
       }
     })
     .catch(error => console.log(error));
+}
+
+////Копка больше///////////////////////////////////////////////////
+refs.moreBtnEl.addEventListener('click', addMorePhoto);
+
+function addMorePhoto() {
+  onSearch(pageToFetch, countPhoto, keyword);
+  console.log(pageToFetch);
+  console.log(countPhoto);
 }
 /////Операция Сабмит/////////////////
 refs.formSearchEl.addEventListener('submit', event => {
@@ -82,21 +88,21 @@ refs.formSearchEl.addEventListener('submit', event => {
     return;
   }
   pageToFetch = 1;
+  // console.log(galleryPhoto.hits.length);
   keyword = searchQuery.trim();
   refs.galleryContainerEl.innerHTML = '';
+  onSearch(pageToFetch, countPhoto, keyword);
+  // refs.formSearchEl.reset();
 });
 
 ///КЛИК по ПОИСКУ////////////////////
+
 refs.submitBtn.addEventListener('click', () => {
   if (keyword === '') {
     return;
   }
-  onSearch(pageToFetch, keyword);
+  onSearch(pageToFetch, countPhoto, keyword);
 });
-
-/////////////////////////////////////////////
-
-////КНОПКА ДОБАВИТЬ ЕЩЁ//////////////
 
 ///РЕНДЕР КАРТИНОК/////////////////////////////////////
 function renderGallery(galleryPhoto) {
@@ -123,14 +129,14 @@ function renderGallery(galleryPhoto) {
     .join('');
   refs.galleryContainerEl.insertAdjacentHTML('beforeend', markup);
 
-  // const { height: cardHeight } = document
-  //   .querySelector('.gallery')
-  //   .firstElementChild.getBoundingClientRect();
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
 
-  // window.scrollBy({
-  //   top: cardHeight * 2,
-  //   behavior: 'smooth',
-  // });
+  window.scrollBy({
+    top: cardHeight * -500,
+    behavior: 'smooth',
+  });
 
   const lightbox = new SimpleLightbox('.gallery a');
 
