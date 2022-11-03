@@ -156,7 +156,7 @@ function renderGallery(galleryPhoto) {
     .firstElementChild.getBoundingClientRect();
 
   window.scrollBy({
-    top: cardHeight * -500,
+    top: cardHeight * 2,
     behavior: 'smooth',
   });
 
