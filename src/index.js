@@ -50,7 +50,7 @@ async function fetchApiGallery() {
       orientation: 'horizontal',
       safesearch: 'true',
     });
-    const response = await axios.get(`${BASE_URL}, ${params}`);
+    const response = await axios.get(`${BASE_URL}?${params}`);
     return response.data;
   } catch (error) {
     console.error(error);
